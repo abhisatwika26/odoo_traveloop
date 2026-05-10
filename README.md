@@ -1,4 +1,3 @@
-Here’s a polished and professional `README.md` for your GitHub repository:
 
 ````md
 # 🌍 Traveloop – All-in-One Travel Companion
