@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Notes - Traveloop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-teal-600 dark:text-teal-400">Trip Journal</h1>
+            <a href="{{ url_for('dashboard') }}" class="text-sm font-medium text-gray-500 hover:text-teal-600">&larr; Back to Dashboard</a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 border border-gray-200 dark:border-gray-700">
+            <form method="GET" action="{{ url_for('trip_notes') }}">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Itinerary</label>
+                <select name="trip_id" onchange="this.form.submit()" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-teal-500 focus:border-teal-500">
+                    <option value="">-- Choose a Trip --</option>
+                    {% for trip in trips %}
+                        <option value="{{ trip.id }}" {% if trip.id == selected_trip_id %}selected{% endif %}>
+                            {{ trip.destination }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        {% if selected_trip_id %}
+            <div class="space-y-6">
+                {% for note in notes %}
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border-l-4 border-teal-500 border-t border-r border-b border-gray-200 dark:border-gray-700 relative group">
+                        <h3 class="text-xl font-bold mb-2">{{ note.title }}</h3>
+                        <p class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap mb-4">{{ note.note_text }}</p>
+                        
+                        <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                            {% if note.day_reference %}
+                                <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">📍 {{ note.day_reference }}</span>
+                            {% endif %}
+                            <span>🕒 {{ note.date_added.strftime('%b %d, %Y') }}</span>
+                        </div>
+
+                        <a href="{{ url_for('delete_note', note_id=note.id) }}" class="absolute top-4 right-4 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity bg-red-50 dark:bg-red-900/30 px-3 py-1 rounded text-sm hover:bg-red-500 hover:text-white">Delete</a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
+                        <p class="text-gray-500 dark:text-gray-400 mb-2">Your journal is empty.</p>
+                        <p class="text-sm text-gray-400">Document your journey below!</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-bold text-teal-600 dark:text-teal-400 mb-4">+ Write a New Entry</h3>
+                <form method="POST" class="space-y-4">
+                    <div class="flex gap-4">
+                        <input type="text" name="title" placeholder="Title (e.g. Awesome Cafe!)" required class="flex-2 w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-teal-500 focus:border-teal-500">
+                        <input type="text" name="day_reference" placeholder="Location/Day Tag" class="flex-1 w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-teal-500 focus:border-teal-500">
+                    </div>
+                    <textarea name="note_text" placeholder="Write about your experiences, save important addresses, or document memories..." required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg p-3 min-h-[120px] focus:ring-teal-500 focus:border-teal-500"></textarea>
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-6 py-3 transition-colors">Save to Journal</button>
+                </form>
+            </div>
+        {% else %}
+             <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
+                <p class="text-gray-500 dark:text-gray-400">Please select a trip above to open your journal.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

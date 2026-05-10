@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Packing Checklist - Traveloop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-teal-600 dark:text-teal-400">Packing Checklist</h1>
+            <a href="{{ url_for('dashboard') }}" class="text-sm font-medium text-gray-500 hover:text-teal-600">&larr; Back to Dashboard</a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 border border-gray-200 dark:border-gray-700">
+            <form method="GET" action="{{ url_for('packing_list') }}">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Itinerary</label>
+                <select name="trip_id" onchange="this.form.submit()" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-3">
+                    <option value="">-- Choose a Trip --</option>
+                    {% for trip in trips %}
+                        <option value="{{ trip.id }}" {% if trip.id == selected_trip_id %}selected{% endif %}>
+                            {{ trip.destination }} ({{ trip.start_date }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        {% if selected_trip_id %}
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Packing Progress</span>
+                    <span class="text-sm font-medium text-teal-600 dark:text-teal-400">{{ total_packed }} of {{ total_items }} packed</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                  <div class="bg-teal-600 h-2.5 rounded-full transition-all duration-500" style="width: {{ progress | int }}%;"></div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                {% for category, items in grouped_items.items() %}
+                    <h3 class="text-lg font-bold text-teal-600 dark:text-teal-400 mt-6 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">{{ category }}</h3>
+                    <div class="space-y-2">
+                        {% for item in items %}
+                            <a href="{{ url_for('toggle_packing_item', item_id=item.id) }}" class="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg group">
+                                <div class="w-6 h-6 rounded border-2 border-teal-500 flex items-center justify-center {% if item.is_packed %}bg-teal-500{% endif %}">
+                                    {% if item.is_packed %}<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>{% endif %}
+                                </div>
+                                <span class="{% if item.is_packed %}line-through text-gray-400 dark:text-gray-500{% else %}text-gray-700 dark:text-gray-200{% endif %}">
+                                    {{ item.item_name }}
+                                </span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <form method="POST" action="{{ url_for('packing_list', trip_id=selected_trip_id) }}" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+                    <input type="text" name="category" placeholder="Category (e.g. Clothing)" required class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-teal-500 focus:border-teal-500">
+                    <input type="text" name="item_name" placeholder="Item Name" required class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg p-3 focus:ring-teal-500 focus:border-teal-500">
+                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg px-6 py-3 transition-colors">Add</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
+                <p class="text-gray-500 dark:text-gray-400">Please select a trip above to start packing.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

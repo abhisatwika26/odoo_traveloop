@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop - Create New Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+        function toggleMenu() { document.getElementById('dropdown-menu').classList.toggle('hidden'); }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-200 min-h-screen font-sans transition-colors duration-300">
+
+    <nav class="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900/50 sticky top-0 z-50 backdrop-blur-md">
+        <a href="{{ url_for('dashboard') }}" class="text-2xl font-bold text-teal-600 dark:text-teal-500 tracking-wide hover:opacity-80">Traveloop</a>
+        
+        <div class="flex items-center gap-4 relative">
+            <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
+            <button onclick="toggleMenu()" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition text-gray-700 dark:text-gray-300 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            
+           <div id="dropdown-menu" class="hidden absolute top-12 right-12 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50">
+    <a href="{{ url_for('dashboard') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30">Dashboard</a>
+    
+    <a href="{{ url_for('my_trips') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">My Trips</a>
+    
+    <a href="{{ url_for('packing_list') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">Packing Checklist</a>
+    
+    <a href="{{ url_for('expenses') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">Budget & Expenses</a>
+    
+    <a href="{{ url_for('trip_notes') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">Trip Notes</a>
+    
+    <a href="{{ url_for('profile') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">User Profile</a>
+    
+    <a href="{{ url_for('create_trip') }}" class="block px-4 py-3 text-sm text-teal-600 dark:text-teal-400 font-bold hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">+ Create an Itinerary</a>
+    
+    <a href="{{ url_for('logout') }}" class="block px-4 py-3 text-sm text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-900/30 border-t border-gray-100 dark:border-gray-700">Logout</a>
+</div>
+            <a href="{{ url_for('profile') }}" class="w-10 h-10 rounded-full border-2 border-teal-500 overflow-hidden cursor-pointer flex items-center justify-center bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white font-bold shadow-md hover:ring-2 hover:ring-teal-400 transition-all">
+                {{ user.first_name[0] | upper }}
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-4 md:p-8 mt-4">
+        
+        <div class="border border-gray-300 dark:border-gray-700 rounded-xl overflow-hidden mb-10 bg-white dark:bg-gray-800/30 shadow-sm">
+            <div class="bg-gray-100 dark:bg-gray-800/80 px-6 py-4 border-b border-gray-300 dark:border-gray-700">
+                <h1 class="text-xl font-bold text-gray-800 dark:text-white">Plan a new trip</h1>
+            </div>
+            
+            <form method="POST" action="{{ url_for('create_trip') }}" class="p-6 md:p-8">
+                
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+                    <label class="w-full md:w-32 text-gray-700 dark:text-gray-300 font-semibold">Trip Type:</label>
+                    <select name="trip_type" required class="flex-grow bg-transparent border border-gray-400 dark:border-gray-600 rounded py-2 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-teal-500">
+                        <option value="" disabled selected class="text-gray-500">Select trip type...</option>
+                        <option value="preplanned" class="bg-white dark:bg-gray-800 text-black dark:text-white">Preplanned / Upcoming</option>
+                        <option value="ongoing" class="bg-white dark:bg-gray-800 text-black dark:text-white">Ongoing</option>
+                        <option value="completed" class="bg-white dark:bg-gray-800 text-black dark:text-white">Completed</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+                    <label class="w-full md:w-32 text-gray-700 dark:text-gray-300 font-semibold">Select a Place:</label>
+                    <input type="text" name="destination" list="places-list" placeholder="Start typing..." required class="flex-grow bg-transparent border border-gray-400 dark:border-gray-600 rounded py-2 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-teal-500">
+                    <datalist id="places-list">
+                        {% for place in places %}
+                            <option value="{{ place }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+                    <label class="w-full md:w-32 text-gray-700 dark:text-gray-300 font-semibold">Start Date:</label>
+                    <input type="date" name="start_date" required class="flex-grow bg-transparent border border-gray-400 dark:border-gray-600 rounded py-2 px-4 text-gray-900 dark:text-gray-300 focus:outline-none focus:border-teal-500 dark:[&::-webkit-calendar-picker-indicator]:filter dark:[&::-webkit-calendar-picker-indicator]:invert">
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+                    <label class="w-full md:w-32 text-gray-700 dark:text-gray-300 font-semibold">End Date:</label>
+                    <input type="date" name="end_date" required class="flex-grow bg-transparent border border-gray-400 dark:border-gray-600 rounded py-2 px-4 text-gray-900 dark:text-gray-300 focus:outline-none focus:border-teal-500 dark:[&::-webkit-calendar-picker-indicator]:filter dark:[&::-webkit-calendar-picker-indicator]:invert">
+                </div>
+
+                <div class="flex flex-col md:flex-row items-start gap-4 mb-8">
+                    <label class="w-full md:w-32 text-gray-700 dark:text-gray-300 font-semibold mt-2">Description:</label>
+                    <textarea name="description" rows="3" placeholder="What is the main goal of this trip?" class="flex-grow bg-transparent border border-gray-400 dark:border-gray-600 rounded py-2 px-4 text-gray-900 dark:text-white focus:outline-none focus:border-teal-500"></textarea>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-8 rounded transition duration-200 shadow-md">
+                        Save Trip Details
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        </main>
+</body>
+</html>

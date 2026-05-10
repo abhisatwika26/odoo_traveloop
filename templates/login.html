@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', }
+        // Automatically check user's system preference for dark mode, or default to dark
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen" style="background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop'); background-size: cover; background-position: center;">
+    
+    <div class="absolute inset-0 bg-black/30 dark:bg-black/60 pointer-events-none"></div>
+
+    <div class="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-gray-700">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-teal-600 dark:text-teal-400 mb-2">Traveloop</h1>
+            <p class="text-gray-600 dark:text-gray-400">Plan your perfect journey.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(category_filter=["error", "success"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-3 rounded bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 text-sm text-center">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-4">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="email">Email</label>
+                <input class="shadow-sm appearance-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded w-full py-3 px-4 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500" id="email" name="email" type="email" placeholder="Email Address" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="password">Password</label>
+                <input class="shadow-sm appearance-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded w-full py-3 px-4 text-gray-700 dark:text-gray-200 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500" id="password" name="password" type="password" placeholder="******************" required>
+            </div>
+            <div class="flex items-center justify-between mb-6">
+                <button class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 px-6 rounded-lg w-full focus:outline-none focus:shadow-outline transition duration-200 shadow-lg" type="submit">
+                    Login
+                </button>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <a class="inline-block align-baseline font-bold text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300" href="#">
+                    Forgot Password?
+                </a>
+                <a class="inline-block align-baseline font-bold text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300" href="{{ url_for('register') }}">
+                    Sign Up
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

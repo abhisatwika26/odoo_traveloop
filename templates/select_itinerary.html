@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop - Select Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class', }</script>
+</head>
+<body class="bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-200 min-h-screen font-sans">
+    
+    <main class="max-w-4xl mx-auto p-6 mt-10">
+        <h2 class="text-3xl font-bold text-teal-500 mb-8 text-center">Select a Trip to Build Itinerary</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+            {% for trip in trips %}
+            <div class="bg-white dark:bg-[#1a2332] rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 flex flex-col">
+                <div class="h-40 overflow-hidden">
+                    <img src="{{ trip.image_url }}" class="w-full h-full object-cover" alt="Trip">
+                </div>
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold px-2 py-1 rounded bg-teal-900/40 text-teal-400 mb-2 inline-block">{{ trip.type }}</span>
+                        <h3 class="text-xl font-bold text-white mb-4">{{ trip.destination }}</h3>
+                    </div>
+                    <a href="{{ url_for('build_itinerary', trip_id=trip.id) }}" class="w-full block text-center bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded transition">
+                        Start Building →
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

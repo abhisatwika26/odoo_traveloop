@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop - Itinerary Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class', }</script>
+    <style>
+        /* Custom arrow connecting activities */
+        .activity-arrow { position: relative; }
+        .activity-arrow::after {
+            content: '↓'; position: absolute; left: 50%; bottom: -20px;
+            transform: translateX(-50%); color: #4b5563; font-weight: bold; font-size: 1.2rem;
+        }
+        .activity-row:last-child .activity-arrow::after { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-200 min-h-screen font-sans pb-20">
+    
+    <main class="max-w-5xl mx-auto p-4 md:p-6 mt-6">
+        
+        <div class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 shadow-xl">
+            <div class="text-center mb-8 border-b border-gray-700 pb-6">
+                <h1 class="text-3xl font-bold text-white mb-2">Itinerary for <span class="text-teal-400">{{ destination }}</span></h1>
+                <p class="text-gray-400">Plan your daily physical activities and track expenses.</p>
+            </div>
+
+            <div class="grid grid-cols-[100px_1fr_150px] gap-4 mb-4 text-center font-bold text-gray-400">
+                <div></div> <div class="text-left text-lg">Physical Activity</div>
+                <div class="text-lg">Expense ($)</div>
+            </div>
+
+            <div id="itinerary-days" class="space-y-8">
+                
+                <div class="day-block grid grid-cols-[100px_1fr] gap-4">
+                    <div>
+                        <div class="border border-white text-white font-bold rounded-lg py-2 px-4 inline-block shadow-[4px_4px_0px_#14b8a6]">
+                            Day 1
+                        </div>
+                    </div>
+                    <div class="bg-[#162032] border border-gray-600 rounded-xl p-4 activity-container space-y-5">
+                        
+                        <div class="activity-row flex gap-4 activity-arrow">
+                            <input type="text" placeholder="E.g., Visit the Eiffel Tower..." class="flex-grow bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none">
+                            <input type="number" min="0" placeholder="0.00" class="w-[150px] bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 text-right expense-input" oninput="calculateTotal()">
+                        </div>
+                        <div class="activity-row flex gap-4 activity-arrow">
+                            <input type="text" placeholder="E.g., Lunch at a local cafe..." class="flex-grow bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 outline-none">
+                            <input type="number" min="0" placeholder="0.00" class="w-[150px] bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 text-right expense-input" oninput="calculateTotal()">
+                        </div>
+                        <div class="activity-row flex gap-4 activity-arrow">
+                            <input type="text" placeholder="Add activity..." class="flex-grow bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 outline-none">
+                            <input type="number" min="0" placeholder="0.00" class="w-[150px] bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 text-right expense-input" oninput="calculateTotal()">
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="day-block grid grid-cols-[100px_1fr] gap-4">
+                    <div>
+                        <div class="border border-white text-white font-bold rounded-lg py-2 px-4 inline-block shadow-[4px_4px_0px_#14b8a6]">
+                            Day 2
+                        </div>
+                    </div>
+                    <div class="bg-[#162032] border border-gray-600 rounded-xl p-4 activity-container space-y-5">
+                        <div class="activity-row flex gap-4 activity-arrow">
+                            <input type="text" placeholder="Add activity..." class="flex-grow bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 outline-none">
+                            <input type="number" min="0" placeholder="0.00" class="w-[150px] bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 text-right expense-input" oninput="calculateTotal()">
+                        </div>
+                        <div class="activity-row flex gap-4 activity-arrow">
+                            <input type="text" placeholder="Add activity..." class="flex-grow bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 outline-none">
+                            <input type="number" min="0" placeholder="0.00" class="w-[150px] bg-transparent border border-gray-500 rounded-lg p-3 text-white focus:border-teal-500 text-right expense-input" oninput="calculateTotal()">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8 border-t border-gray-700 pt-6 flex justify-between items-center">
+                <button class="text-teal-400 hover:text-white font-bold transition flex items-center gap-2">
+                    <span class="text-xl">+</span> Add Another Day
+                </button>
+                <div class="flex items-center gap-6">
+                    <div class="text-2xl text-gray-300">
+                        Total Estimated Expense: 
+                        <span class="font-bold text-teal-400 text-3xl ml-2">$<span id="grand-total">0.00</span></span>
+                    </div>
+                    <button class="bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition">Save Itinerary</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Automatic Expense Calculator
+        function calculateTotal() {
+            let total = 0;
+            const inputs = document.querySelectorAll('.expense-input');
+            inputs.forEach(input => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val)) {
+                    total += val;
+                }
+            });
+            document.getElementById('grand-total').innerText = total.toFixed(2);
+        }
+    </script>
+</body>
+</html>

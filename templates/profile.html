@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveloop - User Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+        function toggleMenu() { document.getElementById('dropdown-menu').classList.toggle('hidden'); }
+        
+        // Modal functions
+        function openEditModal() { document.getElementById('editModal').classList.remove('hidden'); }
+        function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-gray-200 min-h-screen font-sans transition-colors duration-300 pb-20">
+
+    <nav class="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/50 sticky top-0 z-50 backdrop-blur-md">
+        <a href="#" class="text-2xl font-bold text-teal-600 dark:text-teal-500 tracking-wide hover:opacity-80">Traveloop</a>
+        
+        <div class="flex items-center gap-4 relative">
+            <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
+            <button onclick="toggleMenu()" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition text-gray-700 dark:text-gray-300 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            
+            <div id="dropdown-menu" class="hidden absolute top-12 right-12 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50">
+                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30">Dashboard</a>
+                <a href="#" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">My Trips</a>
+                <a href="{{ url_for('profile') }}" class="block px-4 py-3 text-sm text-teal-600 dark:text-teal-400 font-bold hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">User Profile</a>
+                <a href="{{ url_for('create_trip') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">Plan New Trip</a>
+                <a href="{{ url_for('select_itinerary') }}" class="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-teal-50 dark:hover:bg-teal-900/30 border-t border-gray-100 dark:border-gray-700">+ Create an Itinerary</a>
+                <a href="#" class="block px-4 py-3 text-sm text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-900/30 border-t border-gray-100 dark:border-gray-700">Logout</a>
+            </div>
+
+            <a href="{{ url_for('profile') }}" class="w-10 h-10 rounded-full border-2 border-teal-500 overflow-hidden cursor-pointer flex items-center justify-center bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white font-bold shadow-md ring-2 ring-teal-500">
+                {{ user.first_name[0] | upper if user else 'U' }}
+            </a>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-5xl mx-auto p-4">
+                {% for category, message in messages %}
+                    <div class="p-4 mb-4 text-sm rounded-lg {% if category == 'success' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400{% else %}bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="max-w-5xl mx-auto p-4 md:p-6 mt-4">
+        
+        <div class="flex flex-col md:flex-row gap-6 mb-12 items-center md:items-stretch">
+            
+            <div class="relative group w-40 h-40 flex-shrink-0 cursor-pointer" onclick="openEditModal()">
+                <div class="w-full h-full rounded-full border-4 border-gray-300 dark:border-gray-700 overflow-hidden bg-gray-200 dark:bg-gray-800 shadow-lg flex items-center justify-center text-4xl font-bold text-gray-500 dark:text-gray-400">
+                    {% if user and user.profile_image %}
+                        <img src="{{ user.profile_image }}" class="w-full h-full object-cover" alt="Profile Image">
+                    {% else %}
+                        {{ user.first_name[0] | upper if user else 'U' }}
+                    {% endif %}
+                </div>
+                <button class="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span class="text-xs font-semibold">Change Image</span>
+                </button>
+            </div>
+
+            <div class="flex-grow bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl p-6 shadow-sm w-full relative">
+                <button onclick="openEditModal()" class="absolute top-4 right-4 text-gray-500 hover:text-teal-600 dark:hover:text-teal-400 transition flex items-center gap-1 text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    Edit Details
+                </button>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">User Details</h2>
+                
+                <div class="space-y-3 text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center">
+                        <span class="font-semibold w-24">Name:</span>
+                        <span>{{ user.first_name }} {{ user.last_name or '' }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold w-24">Email:</span>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold w-24">Phone:</span>
+                        <span>{{ user.phone_number or 'Not provided' }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold w-24">Location:</span>
+                        <span>
+                            {% if user.city or user.country %}
+                                {{ user.city or 'Unknown City' }}, {{ user.country or 'Unknown Country' }} {% if user.pincode %} - {{ user.pincode }}{% endif %}
+                            {% else %}
+                                Not provided
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="font-semibold w-24">Joined:</span>
+                        <span>{{ user.join_date.strftime('%B %Y') if user.join_date else 'Unknown' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-gray-300 dark:border-gray-700 mb-8">
+
+        <section class="mb-10">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6 font-mono flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span> Ongoing Trips
+            </h3>
+            
+            {% if ongoing_trips %}
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {% for trip in ongoing_trips %}
+                    <div class="aspect-[3/4] rounded-xl border border-teal-500 overflow-hidden relative shadow-[0_0_15px_rgba(20,184,166,0.3)] group cursor-pointer">
+                        <img src="{{ trip.image_url }}" class="w-full h-full object-cover" alt="{{ trip.destination }}">
+                        <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-3 opacity-100 transition duration-300">
+                            <span class="text-white font-bold text-center text-lg mb-4 shadow-black drop-shadow-md">{{ trip.destination }}</span>
+                            <a href="{{ url_for('view_itinerary', trip_id=trip.id) }}" class="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-black font-bold py-1.5 px-5 rounded-md text-sm transition text-center">View Itinerary</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div class="aspect-[3/4] rounded-xl border border-teal-500 overflow-hidden relative shadow-[0_0_15px_rgba(20,184,166,0.3)] group cursor-pointer">
+                        <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500&q=80" class="w-full h-full object-cover" alt="Paris">
+                        <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-3 opacity-100 transition duration-300">
+                            <span class="text-white font-bold text-center text-lg mb-4 shadow-black drop-shadow-md">Paris, France</span>
+                            <a href="{{ url_for('view_itinerary', trip_id=2) }}" class="border-2 border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-black font-bold py-1.5 px-5 rounded-md text-sm transition">View Itinerary</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="mb-10">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6 font-mono">Preplanned Trips</h3>
+            
+            {% if preplanned_trips %}
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {% for trip in preplanned_trips %}
+                    <div class="aspect-[3/4] rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden relative shadow-sm group">
+                        <img src="{{ trip.image_url }}" class="w-full h-full object-cover" alt="Trip">
+                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                            <span class="text-white font-bold text-center mb-4">{{ trip.destination }}</span>
+                            <a href="{{ url_for('view_itinerary', trip_id=trip.id) }}" class="border border-white text-white hover:bg-white hover:text-black font-semibold py-1 px-4 rounded-md text-sm transition">See Details</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white dark:bg-gray-800/30 border border-gray-300 dark:border-gray-700 border-dashed rounded-xl p-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+                    No preplanned trips configured yet.
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="mb-10">
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6 font-mono">Previous Trips</h3>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                
+                {% for trip in completed_trips %}
+                <div class="aspect-[3/4] rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden relative shadow-sm group">
+                    <img src="{{ trip.image_url }}" class="w-full h-full object-cover grayscale-[40%]" alt="Trip">
+                    <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                        <span class="text-white font-bold text-center mb-3">{{ trip.destination }}</span>
+                        <a href="{{ url_for('view_itinerary', trip_id=trip.id) }}" class="border border-teal-500 bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-white font-semibold py-1 px-4 rounded-md text-sm transition">View Itinerary</a>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="aspect-[3/4] rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden relative shadow-sm group">
+                    <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=500&q=80" class="w-full h-full object-cover grayscale-[40%]" alt="London">
+                    <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                        <span class="text-white font-bold text-center mb-3">London, UK</span>
+                        <span class="text-xs text-gray-300 mb-3">Completed Oct 2023</span>
+                        <a href="{{ url_for('view_itinerary', trip_id=99) }}" class="border border-teal-500 bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-white font-semibold py-1 px-4 rounded-md text-sm transition text-center">View Itinerary</a>
+                    </div>
+                </div>
+                
+                <div class="aspect-[3/4] rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden relative shadow-sm group">
+                    <img src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=500&q=80" class="w-full h-full object-cover grayscale-[40%]" alt="Venice">
+                    <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                        <span class="text-white font-bold text-center mb-3">Venice, Italy</span>
+                        <span class="text-xs text-gray-300 mb-3">Completed Jul 2023</span>
+                        <a href="{{ url_for('view_itinerary', trip_id=98) }}" class="border border-teal-500 bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-white font-semibold py-1 px-4 rounded-md text-sm transition text-center">View Itinerary</a>
+                    </div>
+                </div>
+
+                <div class="aspect-[3/4] rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden relative shadow-sm group">
+                    <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80" class="w-full h-full object-cover grayscale-[40%]" alt="Maldives">
+                    <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                        <span class="text-white font-bold text-center mb-3">Maldives</span>
+                        <span class="text-xs text-gray-300 mb-3">Completed Dec 2022</span>
+                        <a href="{{ url_for('view_itinerary', trip_id=97) }}" class="border border-teal-500 bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-white font-semibold py-1 px-4 rounded-md text-sm transition text-center">View Itinerary</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div id="editModal" class="hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#1a2332] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden border border-gray-300 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-[#162032]">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Edit Profile Details</h3>
+                <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition text-2xl leading-none">&times;</button>
+            </div>
+            
+            <form action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
+                        <input type="text" name="first_name" value="{{ user.first_name }}" required class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
+                        <input type="text" name="last_name" value="{{ user.last_name or '' }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" name="email" value="{{ user.email }}" required class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+                        <input type="text" name="phone_number" value="{{ user.phone_number or '' }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
+                        <input type="text" name="city" value="{{ user.city or '' }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
+                        <input type="text" name="country" value="{{ user.country or '' }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pincode</label>
+                        <input type="text" name="pincode" value="{{ user.pincode or '' }}" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 rounded-md p-2.5 text-gray-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Upload Profile Picture</label>
+                    <input type="file" name="profile_pic" accept="image/*" class="w-full text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 dark:file:bg-teal-900/30 dark:file:text-teal-400 hover:file:bg-teal-100 dark:hover:file:bg-teal-900/50 cursor-pointer">
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-md text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 transition">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

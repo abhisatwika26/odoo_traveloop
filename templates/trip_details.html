@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ trip.name }} - Traveloop{% endblock %}
+
+{% block header_content %}
+    <div class="flex items-center gap-4">
+        <a href="{{ url_for('dashboard') }}" class="text-gray-500 hover:text-gray-900 bg-gray-100 p-2 rounded-lg text-sm font-bold">← Back</a>
+        <h2 class="text-xl font-bold text-gray-700">Trip Itinerary</h2>
+    </div>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-6xl mx-auto pb-20">
+    <script>
+        function setDayId(dayId) {
+            document.getElementById('activityDayId').value = dayId;
+            document.getElementById('activityForm').action = "/day/" + dayId + "/add_activity";
+        }
+
+        function openActivityModal(button) {
+            setDayId(button.dataset.dayId);
+            toggleModal('addActivityModal');
+        }
+    </script>
+    
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold mb-1">{{ trip.name }}</h1>
+            <p class="text-gray-500">📍 {{ trip.destination }} • 📅 {{ trip.start_date }} to {{ trip.end_date }}</p>
+            {% if trip.notes %}<p class="text-sm text-gray-400 mt-2 italic">"{{ trip.notes }}"</p>{% endif %}
+        </div>
+        <div class="text-right">
+            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold">Total Budget</p>
+            <p class="text-2xl font-bold text-gray-900">${{ trip.budget }}</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col 2xl:flex-row gap-8 items-start">
+        
+        <div class="w-full 2xl:w-1/4 sticky top-24 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Itinerary Navigation</h3>
+            <ul class="space-y-2 mb-4">
+                {% for day in trip.days %}
+                    <li><a href="#day-{{ day.id }}" class="block px-3 py-2 bg-gray-50 hover:bg-teal-50 hover:text-teal-700 rounded-xl font-medium text-gray-700 transition">{{ day.date_label }}</a></li>
+                {% endfor %}
+            </ul>
+            <button onclick="toggleModal('addDayModal')" class="w-full py-2 border-2 border-dashed border-gray-200 hover:border-teal-500 text-gray-500 hover:text-teal-600 rounded-xl font-semibold transition">+ Add Day Section</button>
+        </div>
+
+        <div class="w-full 2xl:w-3/4 space-y-8">
+            {% if trip.days|length == 0 %}
+                <div class="bg-white border border-gray-100 rounded-3xl p-12 text-center shadow-sm">
+                    <div class="text-5xl mb-4 text-gray-300">🗺️</div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">No itinerary built yet</h2>
+                    <p class="text-gray-500 mb-6">Start by adding a Day Section (like "Day 1 - Arrival") to organize your trip.</p>
+                    <button onclick="toggleModal('addDayModal')" class="bg-teal-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-teal-700 transition">Create First Day</button>
+                </div>
+            {% endif %}
+
+            {% for day in trip.days %}
+                <div id="day-{{ day.id }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold mb-6 pb-4 border-b border-gray-100">{{ day.date_label }}</h2>
+                    
+                    <div class="relative border-l-2 border-gray-100 ml-4 space-y-6">
+                        {% for act in day.activities %}
+                            <div class="ml-8 relative group">
+                                <span class="absolute -left-[41px] top-4 h-4 w-4 rounded-full bg-teal-500 ring-4 ring-white"></span>
+                                <div class="bg-gray-50 border border-gray-100 p-5 rounded-2xl hover:shadow-md transition">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="text-sm font-bold text-teal-600 mb-1">{{ act.time }}</p>
+                                            <h3 class="font-bold text-lg text-gray-900">{{ act.title }}</h3>
+                                            <p class="text-gray-500 text-sm">📍 {{ act.location }}</p>
+                                            {% if act.notes %}<p class="text-gray-400 text-sm mt-2">{{ act.notes }}</p>{% endif %}
+                                        </div>
+                                        <p class="font-bold text-gray-800">${{ act.expense }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <div class="ml-8 pt-2">
+                            <button data-day-id="{{ day.id }}" onclick="openActivityModal(this)" class="w-full py-4 border-2 border-dashed border-gray-200 hover:border-teal-500 text-gray-400 hover:text-teal-600 rounded-2xl font-semibold flex items-center justify-center gap-2 transition bg-white">
+                                + Add Activity
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+
+<div id="addDayModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
+    <form action="{{ url_for('add_day', trip_id=trip.id) }}" method="POST" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+        <h2 class="text-xl font-bold mb-4">Add Day Section</h2>
+        <input type="text" name="date_label" required placeholder="e.g. Day 1 - Arrival" class="w-full border rounded-xl px-4 py-3 mb-4 bg-gray-50">
+        <div class="flex gap-2">
+            <button type="button" onclick="toggleModal('addDayModal')" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-xl font-bold">Cancel</button>
+            <button type="submit" class="flex-1 bg-teal-600 text-white py-2 rounded-xl font-bold">Add</button>
+        </div>
+    </form>
+</div>
+
+<div id="addActivityModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
+    <form id="activityForm" method="POST" class="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl">
+        <input type="hidden" id="activityDayId" name="day_id">
+        <div class="flex justify-between items-center mb-4 pb-4 border-b">
+            <h2 class="text-xl font-bold">Add Activity</h2>
+            <button type="button" onclick="toggleModal('addActivityModal')" class="text-gray-400">✖</button>
+        </div>
+        <div class="space-y-4">
+            <input type="text" name="title" required placeholder="Activity Title (e.g. Visit Louvre)" class="w-full border rounded-xl px-4 py-3 bg-gray-50">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="time" name="time" class="w-full border rounded-xl px-4 py-3 bg-gray-50">
+                <input type="number" name="expense" placeholder="Expense (Amount)" class="w-full border rounded-xl px-4 py-3 bg-gray-50">
+            </div>
+            <input type="text" name="location" placeholder="Location" class="w-full border rounded-xl px-4 py-3 bg-gray-50">
+            <textarea name="notes" placeholder="Notes (Booking Ref, etc.)" class="w-full border rounded-xl px-4 py-3 bg-gray-50"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl mt-6 transition">Save Activity</button>
+    </form>
+</div>
+{% endblock %}
